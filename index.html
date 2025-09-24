@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Click用カレンダー（flatpickr）</title>
+  <title>Click用カレンダー API対応</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body{font-family: system-ui, -apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:16px;}
@@ -11,30 +11,23 @@
     #dateInput {width:100%; padding:10px; font-size:16px; box-sizing:border-box; border:1px solid #ccc; border-radius:6px;}
     .row{margin-top:12px;}
     button{padding:9px 14px;border-radius:6px;border:0;cursor:pointer;font-size:15px;}
-    .btn-copy{background:#007BFF;color:#fff;}
-    .btn-auto{background:#28A745;color:#fff;margin-left:8px;}
-    p.hint{color:#555;margin-top:10px;font-size:13px;}
+    .btn-send{background:#28A745;color:#fff;margin-left:8px;}
+    #result{margin-top:16px;font-weight:600;color:#007BFF;}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <label for="dateInput">日付を選択（Clickの全ての date フィールドに対応）</label>
+    <label for="dateInput">日付を選択</label>
     <input id="dateInput" type="text" placeholder="クリックして日付を選択" readonly>
-
     <div class="row">
-      <button id="copyBtn" class="btn-copy">選択日をコピー</button>
-      <button id="autoBtn" class="btn-auto">Clickに送信</button>
+      <button id="sendBtn" class="btn-send">APIに日付を送信</button>
     </div>
-
-    <p class="hint">
-      ・コピー → Click の日付欄に貼り付け (Ctrl+V / ⌘+V) で反映できます。<br>
-      ・「Clickに送信」は Click が外部APIを受け取れる場合に動作します。
-    </p>
+    <div id="result"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    // 日付ピッカー設定
+    // flatpickr 日付ピッカー設定
     flatpickr("#dateInput", {
       dateFormat: "Y-m-d",
       locale: "default",
@@ -43,31 +36,24 @@
       }
     });
 
-    // コピー
-    document.getElementById("copyBtn").addEventListener("click", function() {
+    // ボタン押下で日付をJSON形式で表示
+    document.getElementById("sendBtn").addEventListener("click", function() {
       const val = document.getElementById("dateInput").value;
-      if(!val){ alert("日付を選択してください"); return; }
-      navigator.clipboard.writeText(val).then(()=>{
-        alert("日付をコピーしました: " + val);
-      }).catch(()=>{
-        const el = document.getElementById("dateInput");
-        el.select(); el.setSelectionRange(0, 99999);
-        alert("コピーできませんでした。手動でコピーしてください: " + el.value);
-      });
-    });
+      if(!val){ 
+        alert("日付を選択してください"); 
+        return; 
+      }
 
-    // Click に送信
-    document.getElementById("autoBtn").addEventListener("click", function() {
-      const val = document.getElementById("dateInput").value;
-      if(!val){ alert("日付を選択してください"); return; }
+      // JSON形式で出力
+      const json = { date: val };
+      document.getElementById("result").textContent = JSON.stringify(json);
 
-      // ここに自分のClickカスタムアクションAPIを設定
-      const clickApiUrl = "https://YOUR_CLICK_API_ENDPOINT?date=" + encodeURIComponent(val);
-
-      fetch(clickApiUrl)
-        .then(res => res.json())
-        .then(data => alert("Clickに送信成功: " + val))
-        .catch(err => alert("送信失敗: " + err));
+      // APIテスト用: URLに送信する場合はfetchで送信可能
+      // fetch("https://YOUR_CLICK_API_ENDPOINT", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(json)
+      // }).then(r=>r.json()).then(d=>console.log(d));
     });
   </script>
 </body>
