@@ -34,6 +34,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
+     // postMessageで日付を返す
+    window.addEventListener("message", function(event) {
+      const data = event.data;
+      if (data?.type === "request_date") {
+        const dateValue = document.getElementById("dateInput").value;
+        // Click 側に返送
+        window.parent.postMessage({ type: "click_date_picker", value: dateValue }, "*");
+      }
+    });
     flatpickr("#dateInput", {
       dateFormat: "Y-m-d",
       locale: "default",
