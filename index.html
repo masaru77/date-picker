@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Click用カレンダー API対応</title>
+  <title>Click用カレンダーAPI対応</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body{font-family: system-ui, -apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:16px;}
@@ -19,15 +19,17 @@
   <div class="wrap">
     <label for="dateInput">日付を選択</label>
     <input id="dateInput" type="text" placeholder="クリックして日付を選択" readonly>
+
     <div class="row">
-      <button id="sendBtn" class="btn-send">APIに日付を送信</button>
+      <button id="sendBtn" class="btn-send">Clickに送信</button>
     </div>
+
     <div id="result"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    // flatpickr 日付ピッカー設定
+    // 日付ピッカー
     flatpickr("#dateInput", {
       dateFormat: "Y-m-d",
       locale: "default",
@@ -36,7 +38,7 @@
       }
     });
 
-    // ボタン押下で日付をJSON形式で表示
+    // Clickに送信（API的にJSONレスポンス）
     document.getElementById("sendBtn").addEventListener("click", function() {
       const val = document.getElementById("dateInput").value;
       if(!val){ 
@@ -44,16 +46,17 @@
         return; 
       }
 
-      // JSON形式で出力
+      // JSON形式で結果表示（Clickのカスタムアクションでリザルト取得可能）
       const json = { date: val };
       document.getElementById("result").textContent = JSON.stringify(json);
 
-      // APIテスト用: URLに送信する場合はfetchで送信可能
-      // fetch("https://YOUR_CLICK_API_ENDPOINT", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(json)
-      // }).then(r=>r.json()).then(d=>console.log(d));
+      // 例：ClickカスタムアクションURLにGET送信する場合
+      // URL例: https://YOUR_CLICK_API_ENDPOINT?date=YYYY-MM-DD
+      const clickApiUrl = "https://YOUR_CLICK_API_ENDPOINT?date=" + encodeURIComponent(val);
+      fetch(clickApiUrl)
+        .then(res => res.json())
+        .then(data => console.log("Clickに送信成功:", data))
+        .catch(err => console.error("送信失敗:", err));
     });
   </script>
 </body>
