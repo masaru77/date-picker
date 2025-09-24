@@ -22,27 +22,19 @@
     <input id="dateInput" type="text" placeholder="クリックして日付を選択" readonly>
 
     <div class="row">
-      <button id="copyBtn" class="btn-copy">選択日をコピー（クリップボード）</button>
-      <button id="autoBtn" class="btn-auto">自動送信（Clickが対応していれば自動入力）</button>
+      <button id="copyBtn" class="btn-copy">選択日をコピー</button>
+      <button id="autoBtn" class="btn-auto">Clickに送信</button>
     </div>
 
     <p class="hint">
-      ・コピー → Click の日付欄に貼り付け (Ctrl+V / ⌘+V) で確実に反映します。<br>
-      ・「自動送信」は Click が外部メッセージを受け取れる場合に動作します（動作しない場合はコピー方式をご利用ください）。
+      ・コピー → Click の日付欄に貼り付け (Ctrl+V / ⌘+V) で反映できます。<br>
+      ・「Clickに送信」は Click が外部APIを受け取れる場合に動作します。
     </p>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-     // postMessageで日付を返す
-    window.addEventListener("message", function(event) {
-      const data = event.data;
-      if (data?.type === "request_date") {
-        const dateValue = document.getElementById("dateInput").value;
-        // Click 側に返送
-        window.parent.postMessage({ type: "click_date_picker", value: dateValue }, "*");
-      }
-    });
+    // 日付ピッカー設定
     flatpickr("#dateInput", {
       dateFormat: "Y-m-d",
       locale: "default",
@@ -51,33 +43,31 @@
       }
     });
 
+    // コピー
     document.getElementById("copyBtn").addEventListener("click", function() {
-      const v = document.getElementById("dateInput").value;
-      if (!v) { alert("日付を選択してください"); return; }
-      navigator.clipboard.writeText(v).then(()=> {
-        alert("日付をコピーしました。Clickのフィールドで貼り付けてください： " + v);
-      }).catch(()=> {
-        // 失敗時は手動選択指示
+      const val = document.getElementById("dateInput").value;
+      if(!val){ alert("日付を選択してください"); return; }
+      navigator.clipboard.writeText(val).then(()=>{
+        alert("日付をコピーしました: " + val);
+      }).catch(()=>{
         const el = document.getElementById("dateInput");
         el.select(); el.setSelectionRange(0, 99999);
-        alert("自動コピーできませんでした。表示された日付を手でコピーしてください: " + el.value);
+        alert("コピーできませんでした。手動でコピーしてください: " + el.value);
       });
     });
 
-    // 自動送信（試行）
+    // Click に送信
     document.getElementById("autoBtn").addEventListener("click", function() {
-      const v = document.getElementById("dateInput").value;
-      if (!v) { alert("日付を選択してください"); return; }
+      const val = document.getElementById("dateInput").value;
+      if(!val){ alert("日付を選択してください"); return; }
 
-      // 1) postMessage を送る（Click がリスンすればここで受け取れる）
-      window.parent.postMessage({ type: "click_date_picker", value: v }, "*");
+      // ここに自分のClickカスタムアクションAPIを設定
+      const clickApiUrl = "https://YOUR_CLICK_API_ENDPOINT?date=" + encodeURIComponent(val);
 
-      // 2) URLハッシュを書き換え（ClickがCurrent Webview URLを参照できる場合に役立つ）
-      try { location.hash = "date=" + v; } catch (e) {}
-
-      // 3) クリップボードにも入れておく（保険）
-      navigator.clipboard.writeText(v).catch(()=>{});
-      alert("自動送信を試行しました（Clickが受け取れば自動入力されます）。動かない場合は「コピー」→貼り付けをお願いします。");
+      fetch(clickApiUrl)
+        .then(res => res.json())
+        .then(data => alert("Clickに送信成功: " + val))
+        .catch(err => alert("送信失敗: " + err));
     });
   </script>
 </body>
