@@ -4,78 +4,56 @@
   <meta charset="utf-8">
   <title>Click用カレンダー</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <!-- flatpickr 本体 -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <!-- 日本語ロケール -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      padding: 20px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      margin: 20px;
     }
-    input {
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 250px;
-      box-sizing: border-box;
-    }
-    #datepicker {
-      display: block;
-      margin-bottom: 15px;
-    }
-    .result-wrap {
+    .input-container {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    #dateResult {
-      background: #f9f9f9;
+    input[type="text"] {
+      width: 200px; /* 上部フォームの大きさ */
+      padding: 6px 8px;
+      font-size: 16px;
     }
     button {
-      padding: 10px 16px;
+      padding: 6px 12px;
       font-size: 14px;
-      border: none;
-      border-radius: 6px;
-      background-color: #007bff;
-      color: #fff;
       cursor: pointer;
-      white-space: nowrap;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f5f5f5;
     }
     button:hover {
-      background-color: #0056b3;
+      background: #e0e0e0;
     }
   </style>
 </head>
 <body>
-  <h2>カレンダーから日付を選択</h2>
-
-  <!-- 上部フォーム -->
-  <input id="datepicker" placeholder="日付を選んでください">
-
-  <!-- 下部フォーム + ボタン -->
-  <div class="result-wrap">
-    <input id="dateResult" readonly placeholder="選択した日付が表示されます">
-    <button id="selectBtn">📋 全選択</button>
+  <h3>日付入力</h3>
+  <div class="input-container">
+    <input type="text" id="datepicker" placeholder="日付を選択">
+    <button onclick="selectDate()">全選択</button>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
   <script>
-    // flatpickr 初期化（日本語対応）
+    // カレンダーを日本語化して初期化
     flatpickr("#datepicker", {
-      locale: "ja",     // ← 日本語表記を有効化
       dateFormat: "Y-m-d",
-      onChange: function(selectedDates, dateStr) {
-        document.getElementById("dateResult").value = dateStr || "";
-      }
+      locale: "ja"
     });
 
-    // ボタンクリックで日付を全選択
-    document.getElementById("selectBtn").addEventListener("click", () => {
-      const input = document.getElementById("dateResult");
+    // 入力欄の内容を全選択する処理
+    function selectDate() {
+      const input = document.getElementById("datepicker");
       input.focus();
       input.select();
-    });
+    }
   </script>
 </body>
 </html>
