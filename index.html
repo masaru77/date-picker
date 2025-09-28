@@ -14,9 +14,10 @@
       font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      width: 250px;   /* フォームの幅を統一 */
+      box-sizing: border-box;
     }
     #datepicker {
-      width: 250px;
       display: block;
       margin-bottom: 15px;
     }
@@ -26,7 +27,6 @@
       gap: 8px; /* 入力欄とボタンの間隔 */
     }
     #dateResult {
-      flex: 1; /* 横幅を伸ばす */
       background: #f9f9f9;
     }
     button {
@@ -47,10 +47,10 @@
 <body>
   <h2>カレンダーから日付を選択</h2>
 
-  <!-- 日付入力 -->
+  <!-- 上部フォーム -->
   <input id="datepicker" placeholder="日付を選んでください">
 
-  <!-- 出力された日付 + ボタン -->
+  <!-- 下部フォーム + ボタン -->
   <div class="result-wrap">
     <input id="dateResult" readonly placeholder="選択された日付がここに表示されます">
     <button id="selectBtn">📋 全選択</button>
