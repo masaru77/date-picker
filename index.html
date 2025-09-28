@@ -1,63 +1,84 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <title>Click用カレンダーAPI対応</title>
+  <meta charset="utf-8" />
+  <title>Click用 日付ピッカー</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body{font-family: system-ui, -apple-system,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;margin:16px;}
-    .wrap{max-width:460px;margin:0 auto;}
-    label{display:block;margin-bottom:8px;font-weight:600;}
-    #dateInput {width:100%; padding:10px; font-size:16px; box-sizing:border-box; border:1px solid #ccc; border-radius:6px;}
-    .row{margin-top:12px;}
-    button{padding:9px 14px;border-radius:6px;border:0;cursor:pointer;font-size:15px;}
-    .btn-send{background:#28A745;color:#fff;margin-left:8px;}
-    #result{margin-top:16px;font-weight:600;color:#007BFF;}
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; padding:20px; }
+    .wrap { max-width:480px; margin:0 auto; }
+    label { display:block; font-weight:600; margin-bottom:8px; }
+    #dateInput { width:100%; padding:10px; font-size:16px; box-sizing:border-box; border-radius:6px; border:1px solid #ccc; }
+    .btn { margin-top:10px; padding:10px 14px; border-radius:6px; border:0; cursor:pointer; }
+    .copy { background:#007BFF; color:#fff; }
+    .hint { color:#666; font-size:13px; margin-top:10px; }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <label for="dateInput">日付を選択</label>
-    <input id="dateInput" type="text" placeholder="クリックして日付を選択" readonly>
+    <label for="dateInput">日付を選択してください</label>
+    <input id="dateInput" type="text" placeholder="クリックして選択" readonly>
 
-    <div class="row">
-      <button id="sendBtn" class="btn-send">Clickに送信</button>
+    <div>
+      <button id="copyBtn" class="btn copy">選択日をコピー（貼付け用）</button>
     </div>
 
-    <div id="result"></div>
+    <p class="hint">
+      選択するとページ URL の末尾に <code>?selected=YYYY-MM-DD</code> が付きます。<br>
+      Click 側の「積み込み日に反映／納品日に反映」ボタンを押すと、その URL から日付を読み取りフィールドに反映します。
+    </p>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    // 日付ピッカー
+    const input = document.getElementById('dateInput');
+
     flatpickr("#dateInput", {
       dateFormat: "Y-m-d",
-      locale: "default",
       onChange: function(selectedDates, dateStr) {
-        document.getElementById("dateInput").value = dateStr;
+        input.value = dateStr || '';
+        // URLパラメータに selected=YYYY-MM-DD を反映（リロードしない）
+        try {
+          const url = new URL(window.location.href);
+          if (dateStr) {
+            url.searchParams.set('selected', dateStr);
+          } else {
+            url.searchParams.delete('selected');
+          }
+          history.replaceState(null, '', url.toString());
+        } catch (e) {
+          // 古いブラウザでも最低限 location.hash を使う
+          location.hash = dateStr ? 'selected=' + dateStr : '';
+        }
       }
     });
 
-    // Clickに送信（API的にJSONレスポンス）
-    document.getElementById("sendBtn").addEventListener("click", function() {
-      const val = document.getElementById("dateInput").value;
-      if(!val){ 
-        alert("日付を選択してください"); 
-        return; 
-      }
-
-      // JSON形式で結果表示（Clickのカスタムアクションでリザルト取得可能）
-      const json = { date: val };
-      document.getElementById("result").textContent = JSON.stringify(json);
-
-      // 例：ClickカスタムアクションURLにGET送信する場合
-      // URL例: https://YOUR_CLICK_API_ENDPOINT?date=YYYY-MM-DD
-      const clickApiUrl = "https://YOUR_CLICK_API_ENDPOINT?date=" + encodeURIComponent(val);
-      fetch(clickApiUrl)
-        .then(res => res.json())
-        .then(data => console.log("Clickに送信成功:", data))
-        .catch(err => console.error("送信失敗:", err));
+    // クリップボードコピー（保険）
+    document.getElementById('copyBtn').addEventListener('click', function() {
+      const v = input.value;
+      if (!v) { alert('日付を選んでください'); return; }
+      navigator.clipboard.writeText(v).then(()=> {
+        alert('日付をコピーしました: ' + v + '\nClick のフィールドに貼り付けてください（Ctrl/Cmd+V）');
+      }).catch(()=> {
+        input.select(); input.setSelectionRange(0, 99999);
+        alert('自動コピーできませんでした。選択してCtrl/Cmd+Cでコピーしてください: ' + v);
+      });
     });
+
+    // ページ読み込み時に ?selected=YYYY-MM-DD があれば input に表示
+    (function initFromUrl() {
+      try {
+        const url = new URL(window.location.href);
+        const s = url.searchParams.get('selected');
+        if (s) input.value = s;
+      } catch (e) {
+        const h = location.hash || '';
+        if (h.indexOf('selected=') >= 0) {
+          const s = h.split('selected=')[1];
+          if (s) input.value = s;
+        }
+      }
+    })();
   </script>
 </body>
 </html>
