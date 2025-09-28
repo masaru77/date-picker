@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <title>Click用カレンダー</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- flatpickr 日本語ロケール -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -14,7 +17,7 @@
       font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      width: 250px;   /* フォームの幅を統一 */
+      width: 250px;
       box-sizing: border-box;
     }
     #datepicker {
@@ -24,7 +27,7 @@
     .result-wrap {
       display: flex;
       align-items: center;
-      gap: 8px; /* 入力欄とボタンの間隔 */
+      gap: 8px;
     }
     #dateResult {
       background: #f9f9f9;
@@ -37,7 +40,7 @@
       background-color: #007bff;
       color: #fff;
       cursor: pointer;
-      white-space: nowrap; /* 改行しない */
+      white-space: nowrap;
     }
     button:hover {
       background-color: #0056b3;
@@ -56,10 +59,10 @@
     <button id="selectBtn">📋 全選択</button>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    // flatpickr 初期化
+    // flatpickr 初期化（日本語対応）
     flatpickr("#datepicker", {
+      locale: "ja",     // ← 日本語表示
       dateFormat: "Y-m-d",
       onChange: function(selectedDates, dateStr) {
         document.getElementById("dateResult").value = dateStr || "";
