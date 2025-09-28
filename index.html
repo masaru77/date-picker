@@ -6,13 +6,16 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body { font-family: system-ui, sans-serif; padding: 20px; }
-    .date-display { 
-      margin-top: 20px; 
-      padding: 10px; 
-      border: 1px solid #ccc; 
-      border-radius: 8px;
-      background: #f9f9f9;
+    input, .date-display { 
+      width: 250px;   /* 上部フォームと同じ幅に調整 */
+      padding: 8px;
       font-size: 1.1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    .date-display {
+      background: #f9f9f9;
     }
   </style>
 </head>
@@ -21,9 +24,7 @@
   <input id="datepicker" placeholder="日付を選んでください">
 
   <!-- 選択結果を表示する場所 -->
-  <div id="dateResult" class="date-display">
-    選択した日付がここに表示されます
-  </div>
+  <div id="dateResult" class="date-display"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
@@ -31,13 +32,8 @@
     flatpickr("#datepicker", {
       dateFormat: "Y-m-d",
       onChange: function(selectedDates, dateStr) {
-        // 選択された日付を下段に表示
-        const resultDiv = document.getElementById("dateResult");
-        if (dateStr) {
-          resultDiv.textContent = "選択した日付: " + dateStr;
-        } else {
-          resultDiv.textContent = "日付が選択されていません";
-        }
+        // YYYY-MM-DD のみ表示
+        document.getElementById("dateResult").textContent = dateStr || "";
       }
     });
   </script>
