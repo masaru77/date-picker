@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Click用カレンダー API対応 完全版</title>
+  <title>Click用カレンダー（コピー対応）</title>
 
   <!-- FlatpickrのCSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -24,73 +24,68 @@
       border: 1px solid #ccc;
       border-radius: 6px;
     }
-    .status {
+    button {
       margin-top: 12px;
-      font-size: 14px;
+      padding: 8px 14px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 0;
+      background: #007BFF;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 13px;
       color: #555;
     }
   </style>
 </head>
 <body>
 
-  <h2>日付入力（Click API対応）</h2>
+  <h2>日付入力（Click用）</h2>
 
   <label for="datepicker">日付を選択してください</label>
-  <!-- Flatpickrを適用する入力欄 -->
-  <input type="text" id="datepicker" placeholder="日付を選択">
+  <input type="text" id="datepicker" placeholder="日付を選択" readonly>
 
-  <!-- 処理ステータス表示 -->
-  <div class="status" id="status">未送信</div>
+  <button id="copyBtn">選択日をコピー</button>
+
+  <p class="hint">
+    ✅ コピーした日付を Click フォームの「積み込み日」「納品日」フィールドに貼り付けてください。
+  </p>
 
   <!-- Flatpickr本体 -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    // ▼ここをClickのAPI情報に差し替える
-    const CLICK_API_ENDPOINT = "https://example.click.com/api/v1/data"; // ← 実際のエンドポイント
-    const CLICK_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxx"; // ← ClickのAPIキー
-    const CLICK_FIELD_NAME = "date_field"; // ← Clickフォームのname属性に一致させる
+    const input = document.getElementById('datepicker');
 
-    // Flatpickrを初期化
+    // Flatpickr初期化
     flatpickr("#datepicker", {
       dateFormat: "Y-m-d",
       locale: "ja",
-      minDate: "today",   // 今日以降のみ選択可
-      disableMobile: true,
-      onChange: function(selectedDates, dateStr) {
-        if (dateStr) {
-          sendToClick(dateStr);
-        }
-      }
+      disableMobile: true
     });
 
-    // API経由でClickにデータ送信
-    async function sendToClick(dateStr) {
-      const statusEl = document.getElementById("status");
-      statusEl.textContent = "送信中…";
-
-      try {
-        const response = await fetch(CLICK_API_ENDPOINT, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${CLICK_API_KEY}`
-          },
-          body: JSON.stringify({
-            [CLICK_FIELD_NAME]: dateStr
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error("送信失敗: " + response.status);
-        }
-
-        const result = await response.json();
-        statusEl.textContent = "送信成功: " + JSON.stringify(result);
-
-      } catch (error) {
-        statusEl.textContent = "エラー: " + error.message;
+    // コピー処理
+    document.getElementById('copyBtn').addEventListener('click', function () {
+      const v = input.value;
+      if (!v) {
+        alert("日付を選んでください");
+        return;
       }
-    }
+      navigator.clipboard.writeText(v).then(() => {
+        alert("✅ 日付をコピーしました: " + v + "\nClick の日付フィールドに貼り付けてください（Ctrl+V または Cmd+V）");
+      }).catch(() => {
+        // 古いブラウザ用のフォールバック
+        input.select();
+        input.setSelectionRange(0, 99999);
+        alert("自動コピーできませんでした。選択してCtrl/Cmd+Cでコピーしてください: " + v);
+      });
+    });
   </script>
+
 </body>
 </html>
