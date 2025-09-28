@@ -15,7 +15,7 @@
       gap: 8px;
     }
     input[type="text"] {
-      width: 200px;
+      width: 200px; /* 上部フォームの大きさ */
       padding: 6px 8px;
       font-size: 16px;
     }
@@ -30,55 +30,29 @@
     button:hover {
       background: #e0e0e0;
     }
-    #message {
-      margin-top: 10px;
-      color: green;
-      font-size: 14px;
-    }
   </style>
 </head>
 <body>
   <h3>日付入力</h3>
   <div class="input-container">
     <input type="text" id="datepicker" placeholder="日付を選択">
-    <button onclick="copyDate()">コピー</button>
+    <button onclick="selectDate()">全選択</button>
   </div>
-  <div id="message"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
   <script>
-    // カレンダーを日本語化
+    // カレンダーを日本語化して初期化
     flatpickr("#datepicker", {
       dateFormat: "Y-m-d",
       locale: "ja"
     });
 
-    // クリップボードコピー機能
-    async function copyDate() {
+    // 入力欄の内容を全選択する処理
+    function selectDate() {
       const input = document.getElementById("datepicker");
-      const text = input.value;
-      const msg = document.getElementById("message");
-
-      if (!text) {
-        msg.textContent = "日付が選択されていません。";
-        msg.style.color = "red";
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(text);
-
-        // OS 判定（Mac か Windows）
-        const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-        const shortcut = isMac ? "⌘＋V" : "Ctrl＋V";
-
-        msg.textContent = `コピーしました！ ${shortcut} で貼り付けできます。`;
-        msg.style.color = "green";
-      } catch (err) {
-        msg.textContent = "コピーに失敗しました。手動で選択してください。";
-        msg.style.color = "red";
-      }
+      input.focus();
+      input.select();
     }
   </script>
 </body>
