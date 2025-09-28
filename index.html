@@ -2,90 +2,44 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Click用カレンダー（コピー対応）</title>
-
-  <!-- FlatpickrのCSS -->
+  <title>Click用カレンダー API対応</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
-      padding: 20px;
-      background: #f8f9fa;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 8px;
-    }
-    input[type="text"] {
-      padding: 8px;
-      font-size: 16px;
-      width: 250px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      margin-top: 12px;
-      padding: 8px 14px;
-      font-size: 15px;
-      border-radius: 6px;
-      border: 0;
-      background: #007BFF;
-      color: #fff;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .hint {
-      margin-top: 10px;
-      font-size: 13px;
-      color: #555;
+    body { font-family: system-ui, sans-serif; padding: 20px; }
+    .date-display { 
+      margin-top: 20px; 
+      padding: 10px; 
+      border: 1px solid #ccc; 
+      border-radius: 8px;
+      background: #f9f9f9;
+      font-size: 1.1em;
     }
   </style>
 </head>
 <body>
+  <h2>カレンダーから日付を選択</h2>
+  <input id="datepicker" placeholder="日付を選んでください">
 
-  <h2>日付入力（Click用）</h2>
+  <!-- 選択結果を表示する場所 -->
+  <div id="dateResult" class="date-display">
+    選択した日付がここに表示されます
+  </div>
 
-  <label for="datepicker">日付を選択してください</label>
-  <input type="text" id="datepicker" placeholder="日付を選択" readonly>
-
-  <button id="copyBtn">選択日をコピー</button>
-
-  <p class="hint">
-    ✅ コピーした日付を Click フォームの「積み込み日」「納品日」フィールドに貼り付けてください。
-  </p>
-
-  <!-- Flatpickr本体 -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    const input = document.getElementById('datepicker');
-
-    // Flatpickr初期化
+    // flatpickr の初期化
     flatpickr("#datepicker", {
       dateFormat: "Y-m-d",
-      locale: "ja",
-      disableMobile: true
-    });
-
-    // コピー処理
-    document.getElementById('copyBtn').addEventListener('click', function () {
-      const v = input.value;
-      if (!v) {
-        alert("日付を選んでください");
-        return;
+      onChange: function(selectedDates, dateStr) {
+        // 選択された日付を下段に表示
+        const resultDiv = document.getElementById("dateResult");
+        if (dateStr) {
+          resultDiv.textContent = "選択した日付: " + dateStr;
+        } else {
+          resultDiv.textContent = "日付が選択されていません";
+        }
       }
-      navigator.clipboard.writeText(v).then(() => {
-        alert("✅ 日付をコピーしました: " + v + "\nClick の日付フィールドに貼り付けてください（Ctrl+V または Cmd+V）");
-      }).catch(() => {
-        // 古いブラウザ用のフォールバック
-        input.select();
-        input.setSelectionRange(0, 99999);
-        alert("自動コピーできませんでした。選択してCtrl/Cmd+Cでコピーしてください: " + v);
-      });
     });
   </script>
-
 </body>
 </html>
