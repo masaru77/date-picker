@@ -2,38 +2,52 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Click用カレンダー 全選択対応</title>
+  <title>Click用カレンダー</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body { font-family: system-ui, sans-serif; padding: 20px; }
-    input, #dateResult { 
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+    }
+    input {
       width: 250px;
-      padding: 8px;
-      font-size: 1.1em;
+      padding: 10px;
+      font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 6px;
       margin-top: 10px;
+      display: block;
     }
     #dateResult {
       background: #f9f9f9;
     }
     button {
-      margin-top: 10px;
-      padding: 6px 12px;
-      font-size: 14px;
+      display: block;
+      margin-top: 15px;
+      padding: 10px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: #fff;
       cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <h2>カレンダーから日付を選択</h2>
+
+  <!-- 日付入力 -->
   <input id="datepicker" placeholder="日付を選んでください">
 
-  <!-- 選択結果を表示するテキストボックス -->
-  <input id="dateResult" readonly>
+  <!-- 選択された日付を表示 -->
+  <input id="dateResult" readonly placeholder="選択された日付がここに表示されます">
 
   <!-- 全選択ボタン -->
-  <button onclick="selectDate()">日付を全選択</button>
+  <button id="selectBtn">📋 日付を全選択</button>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
@@ -46,11 +60,11 @@
     });
 
     // 全選択処理
-    function selectDate() {
+    document.getElementById("selectBtn").addEventListener("click", () => {
       const input = document.getElementById("dateResult");
       input.focus();
       input.select();
-    }
+    });
   </script>
 </body>
 </html>
