@@ -1,84 +1,96 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <title>Click用 日付ピッカー</title>
+  <meta charset="utf-8">
+  <title>Click用カレンダー API対応 完全版</title>
+
+  <!-- FlatpickrのCSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif; padding:20px; }
-    .wrap { max-width:480px; margin:0 auto; }
-    label { display:block; font-weight:600; margin-bottom:8px; }
-    #dateInput { width:100%; padding:10px; font-size:16px; box-sizing:border-box; border-radius:6px; border:1px solid #ccc; }
-    .btn { margin-top:10px; padding:10px 14px; border-radius:6px; border:0; cursor:pointer; }
-    .copy { background:#007BFF; color:#fff; }
-    .hint { color:#666; font-size:13px; margin-top:10px; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 8px;
+    }
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #555;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <label for="dateInput">日付を選択してください</label>
-    <input id="dateInput" type="text" placeholder="クリックして選択" readonly>
 
-    <div>
-      <button id="copyBtn" class="btn copy">選択日をコピー（貼付け用）</button>
-    </div>
+  <h2>日付入力（Click API対応）</h2>
 
-    <p class="hint">
-      選択するとページ URL の末尾に <code>?selected=YYYY-MM-DD</code> が付きます。<br>
-      Click 側の「積み込み日に反映／納品日に反映」ボタンを押すと、その URL から日付を読み取りフィールドに反映します。
-    </p>
-  </div>
+  <label for="datepicker">日付を選択してください</label>
+  <!-- Flatpickrを適用する入力欄 -->
+  <input type="text" id="datepicker" placeholder="日付を選択">
 
+  <!-- 処理ステータス表示 -->
+  <div class="status" id="status">未送信</div>
+
+  <!-- Flatpickr本体 -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    const input = document.getElementById('dateInput');
+    // ▼ここをClickのAPI情報に差し替える
+    const CLICK_API_ENDPOINT = "https://example.click.com/api/v1/data"; // ← 実際のエンドポイント
+    const CLICK_API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxx"; // ← ClickのAPIキー
+    const CLICK_FIELD_NAME = "date_field"; // ← Clickフォームのname属性に一致させる
 
-    flatpickr("#dateInput", {
+    // Flatpickrを初期化
+    flatpickr("#datepicker", {
       dateFormat: "Y-m-d",
+      locale: "ja",
+      minDate: "today",   // 今日以降のみ選択可
+      disableMobile: true,
       onChange: function(selectedDates, dateStr) {
-        input.value = dateStr || '';
-        // URLパラメータに selected=YYYY-MM-DD を反映（リロードしない）
-        try {
-          const url = new URL(window.location.href);
-          if (dateStr) {
-            url.searchParams.set('selected', dateStr);
-          } else {
-            url.searchParams.delete('selected');
-          }
-          history.replaceState(null, '', url.toString());
-        } catch (e) {
-          // 古いブラウザでも最低限 location.hash を使う
-          location.hash = dateStr ? 'selected=' + dateStr : '';
+        if (dateStr) {
+          sendToClick(dateStr);
         }
       }
     });
 
-    // クリップボードコピー（保険）
-    document.getElementById('copyBtn').addEventListener('click', function() {
-      const v = input.value;
-      if (!v) { alert('日付を選んでください'); return; }
-      navigator.clipboard.writeText(v).then(()=> {
-        alert('日付をコピーしました: ' + v + '\nClick のフィールドに貼り付けてください（Ctrl/Cmd+V）');
-      }).catch(()=> {
-        input.select(); input.setSelectionRange(0, 99999);
-        alert('自動コピーできませんでした。選択してCtrl/Cmd+Cでコピーしてください: ' + v);
-      });
-    });
+    // API経由でClickにデータ送信
+    async function sendToClick(dateStr) {
+      const statusEl = document.getElementById("status");
+      statusEl.textContent = "送信中…";
 
-    // ページ読み込み時に ?selected=YYYY-MM-DD があれば input に表示
-    (function initFromUrl() {
       try {
-        const url = new URL(window.location.href);
-        const s = url.searchParams.get('selected');
-        if (s) input.value = s;
-      } catch (e) {
-        const h = location.hash || '';
-        if (h.indexOf('selected=') >= 0) {
-          const s = h.split('selected=')[1];
-          if (s) input.value = s;
+        const response = await fetch(CLICK_API_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${CLICK_API_KEY}`
+          },
+          body: JSON.stringify({
+            [CLICK_FIELD_NAME]: dateStr
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("送信失敗: " + response.status);
         }
+
+        const result = await response.json();
+        statusEl.textContent = "送信成功: " + JSON.stringify(result);
+
+      } catch (error) {
+        statusEl.textContent = "エラー: " + error.message;
       }
-    })();
+    }
   </script>
 </body>
 </html>
