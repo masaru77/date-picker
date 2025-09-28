@@ -48,11 +48,11 @@
       locale: "ja"
     });
 
-    // 入力欄の内容を全選択する処理
+    // 入力欄の内容を全選択する処理（カレンダーは開かない）
     function selectDate() {
       const input = document.getElementById("datepicker");
-      input.focus();
-      input.select();
+      // フォーカスせずに全選択する
+      input.setSelectionRange(0, input.value.length);
     }
   </script>
 </body>
