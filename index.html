@@ -2,20 +2,26 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>Click用カレンダー API対応</title>
+  <title>Click用カレンダー 全選択対応</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body { font-family: system-ui, sans-serif; padding: 20px; }
-    input, .date-display { 
-      width: 250px;   /* 上部フォームと同じ幅に調整 */
+    input, #dateResult { 
+      width: 250px;
       padding: 8px;
       font-size: 1.1em;
       border: 1px solid #ccc;
       border-radius: 6px;
       margin-top: 10px;
     }
-    .date-display {
+    #dateResult {
       background: #f9f9f9;
+    }
+    button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -23,19 +29,28 @@
   <h2>カレンダーから日付を選択</h2>
   <input id="datepicker" placeholder="日付を選んでください">
 
-  <!-- 選択結果を表示する場所 -->
-  <div id="dateResult" class="date-display"></div>
+  <!-- 選択結果を表示するテキストボックス -->
+  <input id="dateResult" readonly>
+
+  <!-- 全選択ボタン -->
+  <button onclick="selectDate()">日付を全選択</button>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-    // flatpickr の初期化
+    // flatpickr 初期化
     flatpickr("#datepicker", {
       dateFormat: "Y-m-d",
       onChange: function(selectedDates, dateStr) {
-        // YYYY-MM-DD のみ表示
-        document.getElementById("dateResult").textContent = dateStr || "";
+        document.getElementById("dateResult").value = dateStr || "";
       }
     });
+
+    // 全選択処理
+    function selectDate() {
+      const input = document.getElementById("dateResult");
+      input.focus();
+      input.select();
+    }
   </script>
 </body>
 </html>
