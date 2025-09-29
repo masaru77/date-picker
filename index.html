@@ -13,9 +13,10 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      margin-bottom: 12px;
     }
     input[type="text"] {
-      width: 200px; /* 上部フォームの大きさ */
+      width: 200px;
       padding: 6px 8px;
       font-size: 16px;
     }
@@ -39,20 +40,27 @@
     <button onclick="selectDate()">全選択</button>
   </div>
 
+  <!-- カレンダーを表示するための要素 -->
+  <div id="calendar"></div>
+
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
   <script>
-    // flatpickr のインスタンスを保持
-    const fp = flatpickr("#datepicker", {
+    // カレンダーを常時表示（inline: true）
+    flatpickr("#calendar", {
       dateFormat: "Y-m-d",
-      locale: "ja"
+      locale: "ja",
+      inline: true,
+      onChange: function(selectedDates, dateStr) {
+        document.getElementById("datepicker").value = dateStr;
+      }
     });
 
-    // 入力欄の内容を全選択する処理
+    // 入力欄の内容を全選択
     function selectDate() {
       const input = document.getElementById("datepicker");
-      input.select();   // 全選択
-      fp.close();       // カレンダーを強制的に閉じる
+      input.focus();
+      input.select();
     }
   </script>
 </body>
