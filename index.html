@@ -42,8 +42,8 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
   <script>
-    // カレンダーを日本語化して初期化
-    flatpickr("#datepicker", {
+    // flatpickr のインスタンスを保持
+    const fp = flatpickr("#datepicker", {
       dateFormat: "Y-m-d",
       locale: "ja"
     });
@@ -51,9 +51,8 @@
     // 入力欄の内容を全選択する処理
     function selectDate() {
       const input = document.getElementById("datepicker");
-      input.focus();                       // フォーカス（カレンダーが開く）
-      input.setSelectionRange(0, input.value.length); // 全選択
-      setTimeout(() => input.blur(), 0);   // すぐにフォーカスを外してカレンダーを閉じる
+      input.select();   // 全選択
+      fp.close();       // カレンダーを強制的に閉じる
     }
   </script>
 </body>
